@@ -1,5 +1,9 @@
 package com.johanekstroem.Model.PeppolDirectoryPOJO;
 
+
+
+import java.util.List;
+
 public class Match {
     private ParticipantID participantID;
     private List<DocType> docTypes = null;

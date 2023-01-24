@@ -1,5 +1,7 @@
 package com.johanekstroem.Model.PeppolDirectoryPOJO;
 
+import java.util.List;
+
 public class Entity {
     private List<Name> name = null;
     private String countryCode;
@@ -37,4 +39,5 @@ public class Entity {
     public void setRegDate(String regDate) {
         this.regDate = regDate;
     }
+
 }
