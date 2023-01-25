@@ -31,10 +31,11 @@ public class HandleRequest {
         return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
     }
 
-    public static void wideSearchQuery(Context ctx) {
+    public static void searchQuery(Context ctx) {
+        boolean isFullSearch = ctx.endpointHandlerPath().equals("/specific");
+
         List<OrganizationDTO> listOfOrganizationDTOs = new ArrayList<>();
         var futurePeppolDirectory = peppolDirectoryLookup(ctx.queryString());
-
         CompletableFuture<Void> combinedFuture = CompletableFuture.allOf(futurePeppolDirectory)
                 .thenAcceptAsync((Void) -> {
                     ObjectMapper om = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
@@ -42,12 +43,17 @@ public class HandleRequest {
                     try {
                         PeppolDirectoryPOJO resultFromPeppolDirectory = om.readValue(futurePeppolDirectory.get().body(),
                                 PeppolDirectoryPOJO.class);
-                        DTOService.fetchFromPeppolDirectory(listOfOrganizationDTOs, resultFromPeppolDirectory,
-                                ExternalSources.PeppolDirectory);
+                        if (isFullSearch) {
+                            DTOService.fullFetchFromPeppolDirectory(listOfOrganizationDTOs, resultFromPeppolDirectory,
+                                    ExternalSources.PeppolDirectory);
+                        } else {
+                            DTOService.fetchFromPeppolDirectory(listOfOrganizationDTOs, resultFromPeppolDirectory,
+                                    ExternalSources.PeppolDirectory);
+                        }
 
                         ctx.json(listOfOrganizationDTOs);
                     } catch (JsonProcessingException | InterruptedException | ExecutionException e) {
-                        ctx.result("Something went wrong!");
+                        ctx.result("Something went wrong");
                     }
                 });
         ctx.future(() -> combinedFuture);
