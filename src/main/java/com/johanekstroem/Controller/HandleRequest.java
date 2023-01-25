@@ -53,4 +53,25 @@ public class HandleRequest {
         ctx.future(() -> combinedFuture);
     }
 
+    public static void narrowSearchQuery(Context ctx) {
+        List<OrganizationDTO> listOfOrganizationDTOs = new ArrayList<>();
+        var futurePeppolDirectory = peppolDirectoryLookup(ctx.queryString());
+        CompletableFuture<Void> combinedFuture = CompletableFuture.allOf(futurePeppolDirectory)
+                .thenAcceptAsync((Void) -> {
+                    ObjectMapper om = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+                            false);
+                    try {
+                        PeppolDirectoryPOJO resultFromPeppolDirectory = om.readValue(futurePeppolDirectory.get().body(),
+                                PeppolDirectoryPOJO.class);
+                        DTOService.fullFetchFromPeppolDirectory(listOfOrganizationDTOs, resultFromPeppolDirectory,
+                                ExternalSources.PeppolDirectory);
+
+                        ctx.json(listOfOrganizationDTOs);
+                    } catch (JsonProcessingException | InterruptedException | ExecutionException e) {
+                        ctx.result("Something went wrong");
+                    }
+                });
+        ctx.future(() -> combinedFuture);
+    }
+
 }
