@@ -31,24 +31,36 @@ public class HandleRequest {
         return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
     }
 
+    public static CompletableFuture<HttpResponse<String>> mockViaductRequest(String queryString) {
+        HttpClient httpClient = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
+                .build();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://directory.peppol.eu/search/1.0/json?q=" + queryString + "&beautify=true"))
+                .GET()
+                .build();
+        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+    }
+
     public static void searchQuery(Context ctx) {
         boolean isFullSearch = ctx.endpointHandlerPath().equals("/specific");
 
         List<OrganizationDTO> listOfOrganizationDTOs = new ArrayList<>();
         var futurePeppolDirectory = peppolDirectoryLookup(ctx.queryString());
-        CompletableFuture<Void> combinedFuture = CompletableFuture.allOf(futurePeppolDirectory)
+        var futureMockViaduct = mockViaductRequest(ctx.queryString());
+        CompletableFuture<Void> combinedFuture = CompletableFuture.allOf(futurePeppolDirectory, futureMockViaduct)
                 .thenAcceptAsync((Void) -> {
                     ObjectMapper om = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
                             false);
                     try {
-                        PeppolDirectoryPOJO resultFromPeppolDirectory = om.readValue(futurePeppolDirectory.get().body(),
-                                PeppolDirectoryPOJO.class);
+                        PeppolDirectoryPOJO resultFromPeppolDirectory = om.readValue(futurePeppolDirectory.get().body(), PeppolDirectoryPOJO.class);
+                        PeppolDirectoryPOJO resultFromMockViaduct = om.readValue(futureMockViaduct.get().body(), PeppolDirectoryPOJO.class);
+
                         if (isFullSearch) {
-                            DTOService.fullFetchFromPeppolDirectory(listOfOrganizationDTOs, resultFromPeppolDirectory,
-                                    ExternalSources.PeppolDirectory);
+                            DTOService.fullFetchFromPeppolDirectory(listOfOrganizationDTOs, resultFromPeppolDirectory, ExternalSources.PeppolDirectory);
                         } else {
-                            DTOService.fetchFromPeppolDirectory(listOfOrganizationDTOs, resultFromPeppolDirectory,
-                                    ExternalSources.PeppolDirectory);
+                            DTOService.fetchFromPeppolDirectory(listOfOrganizationDTOs, resultFromPeppolDirectory, ExternalSources.PeppolDirectory);
+                            DTOService.fetchFromPeppolDirectory(listOfOrganizationDTOs, resultFromMockViaduct, ExternalSources.Viaduct);
                         }
 
                         ctx.json(listOfOrganizationDTOs);
