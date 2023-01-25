@@ -3,11 +3,14 @@ package com.johanekstroem.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.johanekstroem.Model.PeppolDirectoryPOJO.DocType;
 import com.johanekstroem.Model.PeppolDirectoryPOJO.Entity;
 import com.johanekstroem.Model.PeppolDirectoryPOJO.Identifier;
 import com.johanekstroem.Model.PeppolDirectoryPOJO.Match;
 import com.johanekstroem.Model.PeppolDirectoryPOJO.Name;
 import com.johanekstroem.Model.PeppolDirectoryPOJO.PeppolDirectoryPOJO;
+import com.johanekstroem.Model.ResponseDTO.DocTypeDTO;
+import com.johanekstroem.Model.ResponseDTO.Format;
 import com.johanekstroem.Model.ResponseDTO.KeyValuePair;
 import com.johanekstroem.Model.ResponseDTO.OrganizationDTO;
 import com.johanekstroem.Model.ResponseDTO.Source;
@@ -142,5 +145,61 @@ public class DTOService {
             }
         }
         return null;
+    }
+
+    public static void fullFetchFromPeppolDirectory(List<OrganizationDTO> listOfOrganizationDTOs,
+            PeppolDirectoryPOJO resultFromPeppolDirectory, ExternalSources mockSource) {
+        for (Match match : resultFromPeppolDirectory.getMatches()) {
+            OrganizationDTO organizationProspect = new OrganizationDTO(new ArrayList<KeyValuePair>(),
+                    new ArrayList<Source>());
+
+            fillIdentifiersFromMatch(organizationProspect, match, mockSource);
+            fillSourcesFromMatch(organizationProspect, match, mockSource);
+            findOrganizationAndUpdateListOfOrganizations(listOfOrganizationDTOs, match, ExternalSources.PeppolDirectory,
+                    organizationProspect);
+        }
+    }
+
+    private static void fillSourcesFromMatch(OrganizationDTO organizationProspect, Match match,
+            ExternalSources mockSource) {
+        Source source = new Source();
+        source.setSourceName(mockSource.toString());
+
+        findDocType(match.getDocTypes(), source, match);
+
+        organizationProspect.addSource(source);
+    }
+
+    public static void findDocType(List<DocType> listOfDocTypeDTO, Source source, Match match) {
+        for (DocType docType : listOfDocTypeDTO) {
+            DocTypeDTO docTypeDTO = new DocTypeDTO();
+            AvailableDocTypes docTypeScheme = Helpers.getDocTypeFromPeppolScheme(docType.getValue().toString());
+            String description = Helpers.getDescriptionFormTechnicalDoctype(docTypeScheme);
+
+            docTypeDTO.setTechnical(docTypeScheme.toString());
+            docTypeDTO.setDescription(description);
+
+            docTypeDTO.getFormat().add(findFormat(docType, match));
+            source.getDirectionIn().add(docTypeDTO);
+
+        }
+
+    }
+
+    public static Format findFormat(DocType docType, Match match) {
+        Format format = new Format();
+        format.setScheme(docType.getScheme());
+        format.setValue(docType.getValue());
+
+        List<KeyValuePair> ids = new ArrayList<>();
+        String participantIDKey = match.getParticipantID().getScheme();
+        String PEPPOLID = "iso6523-actorid-upis";
+        if (participantIDKey.equals(PEPPOLID)) {
+            ids.add(new KeyValuePair(Identifiers.PEPPOLID.toString(), match.getParticipantID().getValue()));
+        }
+
+        format.setIds(ids);
+
+        return format;
     }
 }
