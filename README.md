@@ -8,7 +8,7 @@ All external requests is async and handled when ready.
 Built with Java 19 and Javalin 5.
 
 Project lacks Maven jar build file.
-## To start the API server:
-git clone https://github.com/JohanEkstroem/relational-edi-lookup.git
-navigate to src/main/java/com/johanekstroem
-run Main.java with shift + F10 IntelliJ or F5 VSC
+# To start the API server:
+## git clone https://github.com/JohanEkstroem/relational-edi-lookup.git
+## navigate to src/main/java/com/johanekstroem
+## run Main.java with shift + F10 IntelliJ or F5 VSC
