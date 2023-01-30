@@ -33,9 +33,9 @@ public class HandleRequestController {
                     try {
                         PeppolDirectoryPOJO resultFromPeppolDirectory = om.readValue(futurePeppolDirectory.get().body(), PeppolDirectoryPOJO.class);
                         PeppolDirectoryPOJO resultFromMockViaduct = om.readValue(futureMockViaduct.get().body(), PeppolDirectoryPOJO.class);
-
                         if (isFullSearch) {
                             DTOService.fullFetchFromPeppolDirectory(listOfOrganizationDTOs, resultFromPeppolDirectory, ExternalSources.PeppolDirectory);
+                            DTOService.fullFetchFromPeppolDirectory(listOfOrganizationDTOs, resultFromMockViaduct, ExternalSources.Viaduct);
                         } else {
                             DTOService.fetchFromPeppolDirectory(listOfOrganizationDTOs, resultFromPeppolDirectory, ExternalSources.PeppolDirectory);
                             DTOService.fetchFromPeppolDirectory(listOfOrganizationDTOs, resultFromMockViaduct, ExternalSources.Viaduct);
