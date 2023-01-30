@@ -1,4 +1,4 @@
-package com.johanekstroem.model.peppolDirectoryPOJO;
+package com.johanekstroem.model.PeppolDirectoryPOJO;
 
 public class DocType {
     private String scheme;

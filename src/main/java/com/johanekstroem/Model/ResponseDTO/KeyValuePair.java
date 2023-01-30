@@ -1,4 +1,4 @@
-package com.johanekstroem.model.responseDTO;
+package com.johanekstroem.model.ResponseDTO;
 
 public class KeyValuePair {
     private String key;
