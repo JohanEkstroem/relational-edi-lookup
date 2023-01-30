@@ -1,4 +1,4 @@
-package com.johanekstroem.Model.ResponseDTO;
+package com.johanekstroem.model.responseDTO;
 
 import java.util.List;
 

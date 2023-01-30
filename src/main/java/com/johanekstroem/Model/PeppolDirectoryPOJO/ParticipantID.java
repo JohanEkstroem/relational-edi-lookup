@@ -1,4 +1,4 @@
-package com.johanekstroem.Model.PeppolDirectoryPOJO;
+package com.johanekstroem.model.peppolDirectoryPOJO;
 
 public class ParticipantID {
     private String scheme;

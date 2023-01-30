@@ -1,4 +1,4 @@
-package com.johanekstroem.Service;
+package com.johanekstroem.service;
 
 public enum ExternalSources {
     PeppolDirectory,
