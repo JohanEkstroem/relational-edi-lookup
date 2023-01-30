@@ -3,7 +3,7 @@ package com.johanekstroem.model.responseDTO;
 import java.util.List;
 
 public class OrganizationDTO {
-    private List<KeyValuePair> companyIdentifier;
+    private List<KeyValuePairSources> companyIdentifier;
     private List<Source> source;
 
     public OrganizationDTO() {
@@ -21,16 +21,16 @@ public class OrganizationDTO {
         this.source.add(source);
     }
 
-    public OrganizationDTO(List<KeyValuePair> companyIdentifier, List<Source> source) {
+    public OrganizationDTO(List<KeyValuePairSources> companyIdentifier, List<Source> source) {
         this.companyIdentifier = companyIdentifier;
         this.source = source;
     }
 
-    public List<KeyValuePair> getCompanyIdentifier() {
+    public List<KeyValuePairSources> getCompanyIdentifier() {
         return companyIdentifier;
     }
 
-    public void setCompanyIdentifier(List<KeyValuePair> companyIdentifier) {
+    public void setCompanyIdentifier(List<KeyValuePairSources> companyIdentifier) {
         this.companyIdentifier = companyIdentifier;
     }
 }

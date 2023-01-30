@@ -12,6 +12,7 @@ import com.johanekstroem.model.peppolDirectoryPOJO.PeppolDirectoryPOJO;
 import com.johanekstroem.model.responseDTO.DocTypeDTO;
 import com.johanekstroem.model.responseDTO.Format;
 import com.johanekstroem.model.responseDTO.KeyValuePair;
+import com.johanekstroem.model.responseDTO.KeyValuePairSources;
 import com.johanekstroem.model.responseDTO.OrganizationDTO;
 import com.johanekstroem.model.responseDTO.Source;
 
@@ -24,7 +25,7 @@ public class DTOService {
             PeppolDirectoryPOJO dataFromPeppolDirectory, ExternalSources mockSource) {
 
         for (Match match : dataFromPeppolDirectory.getMatches()) {
-            OrganizationDTO organizationProspect = new OrganizationDTO(new ArrayList<KeyValuePair>(),
+            OrganizationDTO organizationProspect = new OrganizationDTO(new ArrayList<KeyValuePairSources>(),
                     new ArrayList<Source>());
             fillIdentifiersFromMatch(organizationProspect, match, mockSource);
             findOrganizationAndUpdateListOfOrganizations(listOfOrganizationDTOs, match, mockSource,
@@ -36,7 +37,7 @@ public class DTOService {
             ExternalSources mockSource) {
         if (match.getParticipantID() != null) {
             // Lägg till scheme och value i identifierslistan.
-            addIdentifier(organizationProspect, new KeyValuePair(match.getParticipantID().getScheme(),
+            addIdentifier(organizationProspect, new KeyValuePairSources(match.getParticipantID().getScheme(),
                     match.getParticipantID().getValue(), mockSource.toString()));
         }
         for (Entity entity : match.getEntities()) {
@@ -44,7 +45,7 @@ public class DTOService {
             for (Name name : entity.getName()) {
 
                 addIdentifier(organizationProspect,
-                        new KeyValuePair(Identifiers.NAME.toString(), name.getName(), mockSource.toString()));
+                        new KeyValuePairSources(Identifiers.NAME.toString(), name.getName(), mockSource.toString()));
             }
 
             // From Identifiers collection
@@ -52,7 +53,7 @@ public class DTOService {
                 for (Identifier identifier : entity.getIdentifiers()) {
                     if (getIdentifier(identifier.getScheme()) != null) {
                         addIdentifier(organizationProspect,
-                                new KeyValuePair(getIdentifier(identifier.getScheme()),
+                                new KeyValuePairSources(getIdentifier(identifier.getScheme()),
                                         identifier.getValue(),
                                         // ExternalSources.PeppolDirectory.toString()));
                                         mockSource.toString()));
@@ -62,7 +63,7 @@ public class DTOService {
         }
     }
 
-    public static void addIdentifier(OrganizationDTO organization, KeyValuePair newIdentifier) {
+    public static void addIdentifier(OrganizationDTO organization, KeyValuePairSources newIdentifier) {
         String newIdentifierKey = newIdentifier.getKey().trim().toLowerCase();
         String newIdentifierValue = newIdentifier.getValue().trim().toLowerCase();
         if (newIdentifierKey.equals("iso6523-actorid-upis")) {
@@ -78,7 +79,7 @@ public class DTOService {
             // Ifrån organization.getCompanyIdentifier(),addressera raden som matchar
             // newIdentifier.getKey(), newIdentifier.getValue() och lägg till en ny source i
             // listan.
-            for (KeyValuePair element : organization.getCompanyIdentifier()) {
+            for (KeyValuePairSources element : organization.getCompanyIdentifier()) {
                 String elementKey = element.getKey().trim().toLowerCase();
                 String elementValue = element.getValue().trim().toLowerCase();
 
@@ -130,7 +131,7 @@ public class DTOService {
     public static void fillOrganizationWithNewIds(OrganizationDTO organizationDTOFromMatch,
             OrganizationDTO existingOrganizationDTO) {
 
-        for (KeyValuePair key : organizationDTOFromMatch.getCompanyIdentifier()) {
+        for (KeyValuePairSources key : organizationDTOFromMatch.getCompanyIdentifier()) {
 
             addIdentifier(existingOrganizationDTO, key);
         }
@@ -152,7 +153,7 @@ public class DTOService {
     public static void fullFetchFromPeppolDirectory(List<OrganizationDTO> listOfOrganizationDTOs,
             PeppolDirectoryPOJO resultFromPeppolDirectory, ExternalSources mockSource) {
         for (Match match : resultFromPeppolDirectory.getMatches()) {
-            OrganizationDTO organizationProspect = new OrganizationDTO(new ArrayList<KeyValuePair>(),
+            OrganizationDTO organizationProspect = new OrganizationDTO(new ArrayList<KeyValuePairSources>(),
                     new ArrayList<Source>());
 
             fillIdentifiersFromMatch(organizationProspect, match, mockSource);
@@ -185,7 +186,6 @@ public class DTOService {
             source.getDirectionIn().add(docTypeDTO);
 
         }
-
     }
 
     public static Format findFormat(DocType docType, Match match) {
