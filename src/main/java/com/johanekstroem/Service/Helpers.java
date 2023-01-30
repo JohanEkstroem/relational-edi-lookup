@@ -1,4 +1,4 @@
-package com.johanekstroem.Service;
+package com.johanekstroem.service;
 
 public class Helpers {
     public static AvailableDocTypes getDocTypeFromPeppolScheme(String value) {

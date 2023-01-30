@@ -1,8 +1,9 @@
 
 package com.johanekstroem;
 
+import com.johanekstroem.controller.*;
+
 import io.javalin.Javalin;
-import com.johanekstroem.Controller.*;
 
 public class Main {
   public static void main(String[] args) {

@@ -1,19 +1,21 @@
-package com.johanekstroem.Service;
+package com.johanekstroem.service;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.johanekstroem.Model.PeppolDirectoryPOJO.DocType;
-import com.johanekstroem.Model.PeppolDirectoryPOJO.Entity;
-import com.johanekstroem.Model.PeppolDirectoryPOJO.Identifier;
-import com.johanekstroem.Model.PeppolDirectoryPOJO.Match;
-import com.johanekstroem.Model.PeppolDirectoryPOJO.Name;
-import com.johanekstroem.Model.PeppolDirectoryPOJO.PeppolDirectoryPOJO;
-import com.johanekstroem.Model.ResponseDTO.DocTypeDTO;
-import com.johanekstroem.Model.ResponseDTO.Format;
-import com.johanekstroem.Model.ResponseDTO.KeyValuePair;
-import com.johanekstroem.Model.ResponseDTO.OrganizationDTO;
-import com.johanekstroem.Model.ResponseDTO.Source;
+import com.johanekstroem.model.peppolDirectoryPOJO.DocType;
+import com.johanekstroem.model.peppolDirectoryPOJO.Entity;
+import com.johanekstroem.model.peppolDirectoryPOJO.Identifier;
+import com.johanekstroem.model.peppolDirectoryPOJO.Match;
+import com.johanekstroem.model.peppolDirectoryPOJO.Name;
+import com.johanekstroem.model.peppolDirectoryPOJO.PeppolDirectoryPOJO;
+import com.johanekstroem.model.responseDTO.DocTypeDTO;
+import com.johanekstroem.model.responseDTO.Format;
+import com.johanekstroem.model.responseDTO.KeyValuePair;
+import com.johanekstroem.model.responseDTO.OrganizationDTO;
+import com.johanekstroem.model.responseDTO.Source;
+
+
 
 public class DTOService {
 

@@ -1,4 +1,4 @@
-package com.johanekstroem.Controller;
+package com.johanekstroem.controller;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -12,10 +12,10 @@ import java.util.concurrent.ExecutionException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.johanekstroem.Model.PeppolDirectoryPOJO.PeppolDirectoryPOJO;
-import com.johanekstroem.Model.ResponseDTO.OrganizationDTO;
-import com.johanekstroem.Service.DTOService;
-import com.johanekstroem.Service.ExternalSources;
+import com.johanekstroem.model.peppolDirectoryPOJO.PeppolDirectoryPOJO;
+import com.johanekstroem.model.responseDTO.OrganizationDTO;
+import com.johanekstroem.service.DTOService;
+import com.johanekstroem.service.ExternalSources;
 
 import io.javalin.http.Context;
 
