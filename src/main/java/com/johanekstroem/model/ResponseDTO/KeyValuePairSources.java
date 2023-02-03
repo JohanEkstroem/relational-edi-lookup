@@ -46,4 +46,8 @@ public class KeyValuePairSources {
     public void setValue(String value) {
         this.value = value;
     }
+
+    public void addListOfSources(String source) {
+        this.listOfSources.add(source);
+    }
 }

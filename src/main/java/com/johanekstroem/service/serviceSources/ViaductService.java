@@ -1,10 +1,15 @@
-package com.johanekstroem.service;
+package com.johanekstroem.service.serviceSources;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
+
+import com.johanekstroem.model.PeppolDirectoryPOJO.PeppolDirectoryPOJO;
+import com.johanekstroem.model.ResponseDTO.OrganizationDTO;
+import com.johanekstroem.service.ExternalSources;
 
 public class ViaductService {
 
@@ -17,5 +22,13 @@ public class ViaductService {
                 .GET()
                 .build();
         return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+    }
+
+    public static void fullFetchFromViaduct(List<OrganizationDTO> listOfOrganizationDTOs,
+            PeppolDirectoryPOJO resultFromMockViaduct, ExternalSources viaduct) {
+    }
+
+    public static void fetchFromViaduct(List<OrganizationDTO> listOfOrganizationDTOs,
+            PeppolDirectoryPOJO resultFromMockViaduct, ExternalSources viaduct) {
     }
 }

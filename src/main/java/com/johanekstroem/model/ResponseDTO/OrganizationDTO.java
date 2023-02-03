@@ -33,4 +33,8 @@ public class OrganizationDTO {
     public void setCompanyIdentifier(List<KeyValuePairSources> companyIdentifier) {
         this.companyIdentifier = companyIdentifier;
     }
+
+    public void addCompanyIdentifier(KeyValuePairSources newIdentifier) {
+        this.companyIdentifier.add(newIdentifier);
+    }
 }

@@ -10,10 +10,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.johanekstroem.model.PeppolDirectoryPOJO.PeppolDirectoryPOJO;
 import com.johanekstroem.model.ResponseDTO.OrganizationDTO;
-import com.johanekstroem.service.DTOService;
 import com.johanekstroem.service.ExternalSources;
-import com.johanekstroem.service.PeppolDirectoryService;
-import com.johanekstroem.service.ViaductService;
+import com.johanekstroem.service.serviceSources.PeppolDirectoryService;
+import com.johanekstroem.service.serviceSources.ViaductService;
 
 import io.javalin.http.Context;
 
@@ -22,23 +21,22 @@ public class HandleRequestController {
 
     public static void searchQuery(Context ctx) {
         boolean isFullSearch = ctx.endpointHandlerPath().equals("/specific");
-
         List<OrganizationDTO> listOfOrganizationDTOs = new ArrayList<>();
+
         var futurePeppolDirectory = PeppolDirectoryService.peppolDirectoryLookup(ctx.queryString());
         var futureMockViaduct = ViaductService.mockViaductRequest(ctx.queryString());
         CompletableFuture<Void> combinedFuture = CompletableFuture.allOf(futurePeppolDirectory, futureMockViaduct)
                 .thenAcceptAsync((Void) -> {
-                    ObjectMapper om = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
-                            false);
+                    ObjectMapper om = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                     try {
                         PeppolDirectoryPOJO resultFromPeppolDirectory = om.readValue(futurePeppolDirectory.get().body(), PeppolDirectoryPOJO.class);
                         PeppolDirectoryPOJO resultFromMockViaduct = om.readValue(futureMockViaduct.get().body(), PeppolDirectoryPOJO.class);
                         if (isFullSearch) {
-                            DTOService.fullFetchFromPeppolDirectory(listOfOrganizationDTOs, resultFromPeppolDirectory, ExternalSources.PeppolDirectory);
-                            DTOService.fullFetchFromPeppolDirectory(listOfOrganizationDTOs, resultFromMockViaduct, ExternalSources.Viaduct);
+                            PeppolDirectoryService.fullFetchFromPeppolDirectory(listOfOrganizationDTOs, resultFromPeppolDirectory, ExternalSources.PeppolDirectory);
+                            ViaductService.fullFetchFromViaduct(listOfOrganizationDTOs, resultFromMockViaduct, ExternalSources.Viaduct);
                         } else {
-                            DTOService.fetchFromPeppolDirectory(listOfOrganizationDTOs, resultFromPeppolDirectory, ExternalSources.PeppolDirectory);
-                            DTOService.fetchFromPeppolDirectory(listOfOrganizationDTOs, resultFromMockViaduct, ExternalSources.Viaduct);
+                            PeppolDirectoryService.fetchFromPeppolDirectory(listOfOrganizationDTOs, resultFromPeppolDirectory, ExternalSources.PeppolDirectory);
+                            ViaductService.fetchFromViaduct(listOfOrganizationDTOs, resultFromMockViaduct, ExternalSources.Viaduct);
                         }
 
                         ctx.json(listOfOrganizationDTOs);
