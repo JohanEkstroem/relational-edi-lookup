@@ -1,6 +1,6 @@
 package com.johanekstroem.service;
 
-public enum Identifiers {
+public enum IdentifiersENUM {
     UNKNOWN,
     NAME,
     VAT,

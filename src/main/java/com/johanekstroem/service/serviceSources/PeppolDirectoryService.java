@@ -21,9 +21,10 @@ import com.johanekstroem.model.ResponseDTO.KeyValuePairSources;
 import com.johanekstroem.model.ResponseDTO.OrganizationDTO;
 import com.johanekstroem.model.ResponseDTO.Source;
 import com.johanekstroem.service.AvailableDocTypes;
+import com.johanekstroem.service.DTOService;
 import com.johanekstroem.service.ExternalSources;
 import com.johanekstroem.service.Helpers;
-import com.johanekstroem.service.Identifiers;
+import com.johanekstroem.service.IdentifiersENUM;
 
 public class PeppolDirectoryService {
     public static CompletableFuture<HttpResponse<String>> peppolDirectoryLookup(String queryString) {
@@ -45,32 +46,33 @@ public class PeppolDirectoryService {
             OrganizationDTO organizationProspect = new OrganizationDTO(new ArrayList<KeyValuePairSources>(),
                     new ArrayList<Source>());
             fillIdentifiersFromMatch(organizationProspect, match, mockSource);
-            findOrganizationAndUpdateListOfOrganizations(listOfOrganizationDTOs,
+            DTOService.findOrganizationAndUpdateListOfOrganizations(listOfOrganizationDTOs,
                     organizationProspect);
         }
     }
 
+    
     private static void fillIdentifiersFromMatch(OrganizationDTO organizationProspect, Match match,
             ExternalSources mockSource) {
         if (match.getParticipantID() != null) {
             // Lägg till scheme och value i identifierslistan.
-            addIdentifier(organizationProspect, new KeyValuePairSources(match.getParticipantID().getScheme(),
+            DTOService.addIdentifier(organizationProspect, new KeyValuePairSources(match.getParticipantID().getScheme(),
                     match.getParticipantID().getValue(), mockSource.toString()));
         }
         for (Entity entity : match.getEntities()) {
             // From name collection
             for (Name name : entity.getName()) {
 
-                addIdentifier(organizationProspect,
-                        new KeyValuePairSources(Identifiers.NAME.toString(), name.getName(), mockSource.toString()));
+                DTOService.addIdentifier(organizationProspect,
+                        new KeyValuePairSources(IdentifiersENUM.NAME.toString(), name.getName(), mockSource.toString()));
             }
 
             // From Identifiers collection
             if (entity.getIdentifiers() != null) {
                 for (Identifier identifier : entity.getIdentifiers()) {
-                    if (getIdentifier(identifier.getScheme()) != null) {
-                        addIdentifier(organizationProspect,
-                                new KeyValuePairSources(getIdentifier(identifier.getScheme()),
+                    if (DTOService.getIdentifier(identifier.getScheme()) != null) {
+                        DTOService.addIdentifier(organizationProspect,
+                                new KeyValuePairSources(DTOService.getIdentifier(identifier.getScheme()),
                                         identifier.getValue(),
                                         // ExternalSources.PeppolDirectory.toString()));
                                         mockSource.toString()));
@@ -78,99 +80,6 @@ public class PeppolDirectoryService {
                 }
             }
         }
-    }
-
-    // TAG: reuse
-    public static void addIdentifier(OrganizationDTO organization, KeyValuePairSources newIdentifier) {
-        String newIdentifierKey = newIdentifier.getKey().trim().toLowerCase();
-        String newIdentifierValue = newIdentifier.getValue().trim().toLowerCase();
-        if (newIdentifierKey.equals("iso6523-actorid-upis")) {
-            newIdentifier.setKey(Identifiers.PEPPOLID.toString());
-        }
-
-        // If there's no match -> add newIdentifier
-        if (organization.getCompanyIdentifier().stream().noneMatch(
-                x -> x.getKey().trim().toLowerCase().equals(newIdentifierKey)
-                        && x.getValue().trim().toLowerCase().equals(newIdentifierValue))) {
-            // organization.getCompanyIdentifier().add(newIdentifier);
-            organization.addCompanyIdentifier(newIdentifier);
-        } else {
-            // Ifrån organization.getCompanyIdentifier(),addressera raden som matchar
-            // newIdentifier.getKey(), newIdentifier.getValue() och lägg till en ny source i
-            // listan.
-            for (KeyValuePairSources element : organization.getCompanyIdentifier()) {
-                String elementKey = element.getKey().trim().toLowerCase();
-                String elementValue = element.getValue().trim().toLowerCase();
-
-                if (elementKey.equals(newIdentifierKey) && elementValue.equals(newIdentifierValue)) {
-                    // Check if list of sources already have externalSources -> Add source to
-                    // companyIdentifierList
-                    if (!element.getListOfSources().contains(newIdentifier.getListOfSources().get(0))) {
-                        // element.getListOfSources().add(newIdentifier.getListOfSources().get(0));
-                        element.addListOfSources(newIdentifier.getListOfSources().get(0));
-                    }
-                }
-            }
-        }
-
-    }
-
-    // TAG: reuse
-    public static void findOrganizationAndUpdateListOfOrganizations(List<OrganizationDTO> listOfOrganizations,
-            OrganizationDTO organizationProspect) {
-
-        var identifiersToCheck = organizationProspect.getCompanyIdentifier();
-
-        // Hämta ut alla organisationer i listan listOfOrganizations som har någon match
-        // i "companyIdentifiers" någon av identifierarna i identifiersToCheck (som i
-        // sin
-        // tur kommer från det nya, hämtade, datat från API:et)
-        OrganizationDTO foundOrganization = null;
-
-        try {
-            foundOrganization = listOfOrganizations.stream()
-                    .filter(x -> x.getCompanyIdentifier().stream().anyMatch(z -> identifiersToCheck.stream()
-                            .anyMatch(y -> z.getKey().equals(y.getKey()) && z.getValue().equals(y.getValue()))))
-                    .findFirst().get();
-        } catch (Exception e) {
-            // TODO: handle exception
-        }
-
-        if (foundOrganization == null) {
-            // det finns ingen organisation i listan som passar med den nyhämtade datat i
-            // "matchen"
-            listOfOrganizations.add(organizationProspect);
-        } else {
-            // det finns organisation i listan som passar med den nyhämtade datat i
-            // "matchen", då fyller vi på med identifierare som inte redan finns i
-            // organisationen från listan
-            fillOrganizationWithNewIds(organizationProspect, foundOrganization);
-        }
-
-    }
-
-    // TAG: reuse
-    public static void fillOrganizationWithNewIds(OrganizationDTO organizationDTOFromMatch,
-            OrganizationDTO existingOrganizationDTO) {
-
-        for (KeyValuePairSources key : organizationDTOFromMatch.getCompanyIdentifier()) {
-
-            addIdentifier(existingOrganizationDTO, key);
-        }
-
-    }
-
-    // TAG: reuse
-    public static String getIdentifier(String identifierString) {
-        identifierString = identifierString.trim().replace(" ", "");
-        for (Identifiers identifier : Identifiers.values()) {
-            String identifierValue = identifier.toString();
-
-            if (identifierString.equals(identifierValue)) {
-                return identifierValue;
-            }
-        }
-        return null;
     }
 
     public static void fullFetchFromPeppolDirectory(List<OrganizationDTO> listOfOrganizationDTOs,
@@ -181,7 +90,7 @@ public class PeppolDirectoryService {
 
             fillIdentifiersFromMatch(organizationProspect, match, mockSource);
             fillSourcesFromMatch(organizationProspect, match, mockSource);
-            findOrganizationAndUpdateListOfOrganizations(listOfOrganizationDTOs,
+            DTOService.findOrganizationAndUpdateListOfOrganizations(listOfOrganizationDTOs,
                     organizationProspect);
         }
     }
@@ -220,7 +129,7 @@ public class PeppolDirectoryService {
         String participantIDKey = match.getParticipantID().getScheme();
         String PEPPOLID = "iso6523-actorid-upis";
         if (participantIDKey.equals(PEPPOLID)) {
-            ids.add(new KeyValuePair(Identifiers.PEPPOLID.toString(), match.getParticipantID().getValue()));
+            ids.add(new KeyValuePair(IdentifiersENUM.PEPPOLID.toString(), match.getParticipantID().getValue()));
         }
 
         format.setIds(ids);
