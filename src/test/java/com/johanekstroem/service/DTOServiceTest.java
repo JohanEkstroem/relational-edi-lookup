@@ -36,7 +36,7 @@ public class DTOServiceTest {
         // Act
         var result = service.getIdentifier(identifier);
 
-        // Arrange
+        // Assert
         assertEquals(expectedResult, result);
     }
     private static Stream<Arguments> getIdentifier(){

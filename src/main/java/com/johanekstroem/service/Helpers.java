@@ -12,6 +12,8 @@ public class Helpers {
             return AvailableDocTypes.ORDERRESPONSE;
         if (value.contains("::Catalogue"))
             return AvailableDocTypes.CATALOGUE;
+        if (value.contains("::Delfor"))
+            return AvailableDocTypes.DELFOR;
 
         return AvailableDocTypes.UNKNOWN;
 
