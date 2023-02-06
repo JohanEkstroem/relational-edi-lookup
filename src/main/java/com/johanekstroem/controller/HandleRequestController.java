@@ -44,7 +44,7 @@ public class HandleRequestController {
                         ctx.result("Something went wrong");
                     }
                 });
-        ctx.future(() -> combinedFuture);
+        ctx.future(combinedFuture);
     }
 
 }
